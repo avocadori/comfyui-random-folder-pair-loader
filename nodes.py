@@ -1,4 +1,5 @@
 import os, glob, random, itertools, pathlib
+import numpy as np
 from PIL import Image
 import torchaudio, torch
 
@@ -94,14 +95,8 @@ class RandomFolderPairLoader:
 
         # ③ 画像 → Tensor
         img = Image.open(png_path).convert("RGB")
-        img_tensor = (
-            torch.from_numpy(
-                torch.ByteTensor(torch.ByteStorage.from_buffer(img.tobytes()))
-                .view(img.height, img.width, 3)
-                .float()
-            )
-            / 255.0
-        ).unsqueeze(0)  # [1,H,W,C]
+        img_array = np.array(img).astype(np.float32) / 255.0
+        img_tensor = torch.from_numpy(img_array).unsqueeze(0)  # [1,H,W,C]
 
         # ④ 音声 → Tensor 辞書
         waveform, sr = torchaudio.load(aud_path)
